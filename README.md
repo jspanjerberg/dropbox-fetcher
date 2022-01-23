@@ -2,7 +2,7 @@
 
 Fetch all files from your dropbox via API.
 
----------------------------------------
+
 
 ## Installation (Linux)
 
@@ -43,7 +43,7 @@ echo $TOKEN > ~/tokens/.dropbox.secret
 pip3 install dropbox
 ```
 
----------------------------------------
+
 
 ## Usage examples
 
