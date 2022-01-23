@@ -37,8 +37,8 @@ cd ~/repos/dropbox-fetcher/
 ./dropbox_fetcher.py -f
 
 # specify source and destination
-./dropbox_fetcher.py -s "mydropbox/subfolder" -d "~/temp/dbx-download"
+./dropbox_fetcher.py -s mydropbox/subfolder -d ~/temp/dbx-download
 
 # specify path to token secret
-./dropbox_fetcher.py -t "~/mytokens/.dropbox.secret"
+./dropbox_fetcher.py -t ~/mytokens/.dropbox.secret
 ```
