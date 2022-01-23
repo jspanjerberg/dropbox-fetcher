@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pathlib
+import argparse
 from os.path import isdir
 from os.path import isfile
 from os.path import expanduser
@@ -8,15 +9,14 @@ from os.path import expanduser
 try:
     import dropbox
 except Exception:
-    print()
-    print("pip3 install dropbox")
-    print()
+    print("\npip3 install dropbox\n")
     raise
 
 HOME = expanduser("~")
 TOKEN_DIR = f"{HOME}/tokens"
-SECRET_FILENAME = f"{TOKEN_DIR}/.dropbox.secret"
 TARGET_DIR = f"{HOME}/storage/dropbox"
+SECRET_TOKEN = f"{TOKEN_DIR}/.dropbox.token.secret"
+SECRET_SHAREDLINK = f"{TOKEN_DIR}/.dropbox.sharedlink.secret"
 
 
 class Color:
@@ -52,19 +52,41 @@ def list_all_files(dbx_auth, path):
 
 
 if __name__ == "__main__":
-    with open(SECRET_FILENAME, 'r') as f:
-        TOKEN = f.read().strip()
-    dbx = dropbox.Dropbox(TOKEN)
+    parser = argparse.ArgumentParser(description="Fetch files via DropBox API")
+    parser.add_argument("-f", "--force",
+                        action='store_true',
+                        help="Force re-fetching of files.")
+    parser.add_argument("-s", "--source",
+                        metavar='PATH', default='',
+                        help="Specify path in dropbox folder to fetch from.\
+                              Default: ''")
+    parser.add_argument("-d", "--destination",
+                        metavar='PATH', default=TARGET_DIR,
+                        help=f"Specify path to store fetched dropbox files to.\
+                               Default: {TARGET_DIR}")
+    parser.add_argument("-t", "--token",
+                        metavar='PATH', default=SECRET_TOKEN,
+                        help=f"Specify path to dropbox token.\
+                               Default: {SECRET_TOKEN}")
+    args = parser.parse_args()
+    force_refetches = args.force
+    source_dir = args.source
+    destination_dir = args.destination
+    token_path = args.token
 
-    note("Fetching files from dropbox")
+    with open(token_path, 'r') as f:
+        token = f.read().strip()
+    dbx = dropbox.Dropbox(token)
+
+    note("Fetching files from user's dropbox")
     for dropbox_file in list_all_files(dbx, ''):
-        destination_file = TARGET_DIR + dropbox_file
-        destination_dir = '/'.join(destination_file.split('/')[:-1])
+        destination_file = f"{destination_dir}/{dropbox_file}"
         if not isdir(destination_dir):
             pathlib.Path(destination_dir).mkdir(parents=True)
             alert(f"Created dir {destination_dir}")
-        if not isfile(destination_file):
+        if not isfile(destination_file) or force_refetches:
             dbx.files_download_to_file(destination_file, dropbox_file)
             checkmark(f"{destination_file}")
         else:
             alert(f"Already exists: {destination_file}")
+    note(destination_dir)
