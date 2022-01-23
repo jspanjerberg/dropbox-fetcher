@@ -6,8 +6,17 @@ Fetch all files from your dropbox
 
 This guide assumes you have python3 installed.
 
+
+1. Clone this repo locally:
+
+```
+mkdir -p ~/repos
+cd ~/repos
+git clone git@github.com:jspanjerberg/dropbox-fetcher.git
+```
+
 1. Create a dropbox API token via https://www.dropbox.com/developers/apps
-1. Run the following commands in terminal from the root of this repository:
+1. Store token and run script:
 
 ```
 TOKEN=db_copypasteyourtokenhere
