@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import pathlib
 import argparse
 from os.path import isdir
@@ -16,7 +17,6 @@ HOME = expanduser("~")
 TOKEN_DIR = f"{HOME}/tokens"
 TARGET_DIR = f"{HOME}/storage/dropbox"
 SECRET_TOKEN = f"{TOKEN_DIR}/.dropbox.token.secret"
-SECRET_SHAREDLINK = f"{TOKEN_DIR}/.dropbox.sharedlink.secret"
 
 
 class Color:
@@ -39,6 +39,11 @@ def checkmark(msg):
 
 def alert(msg):
     pre = Color.MAGENTA + ' ! ' + Color.END
+    print(f"{pre} {msg}")
+
+
+def error(msg):
+    pre = Color.RED + '!!!' + Color.END
     print(f"{pre} {msg}")
 
 
@@ -74,19 +79,38 @@ if __name__ == "__main__":
     destination_dir = args.destination
     token_path = args.token
 
-    with open(token_path, 'r') as f:
-        token = f.read().strip()
-    dbx = dropbox.Dropbox(token)
+    try:
+        with open(token_path, 'r') as f:
+            token = f.read().strip()
+        dbx = dropbox.Dropbox(token)
 
-    note("Fetching files from user's dropbox")
-    for dropbox_file in list_all_files(dbx, ''):
-        destination_file = f"{destination_dir}/{dropbox_file}"
-        if not isdir(destination_dir):
-            pathlib.Path(destination_dir).mkdir(parents=True)
-            alert(f"Created dir {destination_dir}")
-        if not isfile(destination_file) or force_refetches:
-            dbx.files_download_to_file(destination_file, dropbox_file)
-            checkmark(f"{destination_file}")
-        else:
-            alert(f"Already exists: {destination_file}")
-    note(destination_dir)
+        note("Fetching files from user's dropbox")
+        if source_dir and not source_dir.startswith('/'):
+            source_dir = '/' + source_dir
+        for dropbox_file in list_all_files(dbx, source_dir):
+            destination_file = destination_dir + dropbox_file
+            destination_base = '/'.join(destination_file.split('/')[:-1])
+            if not isdir(destination_base):
+                pathlib.Path(destination_base).mkdir(parents=True)
+                alert(f"Created dir {destination_base}")
+            if not isfile(destination_file) or force_refetches:
+                dbx.files_download_to_file(destination_file, dropbox_file)
+                checkmark(f"{destination_file}")
+            else:
+                alert(f"Already exists: {destination_file}")
+        note("Script finished!")
+        checkmark(destination_dir)
+    except dropbox.exceptions.BadInputError as e:
+        error(f"Error with parsing token.\
+                Check if tokenfile is correctly set: {token_path}")
+        error(e)
+        sys.exit(1)
+    except dropbox.exceptions.ApiError as e:
+        error(f"Error with API call.\
+                Check if this dropbox directory exists: {source_dir}")
+        error(e)
+        sys.exit(1)
+    except Exception as e:
+        error("General exception occurred")
+        error(e)
+        raise
