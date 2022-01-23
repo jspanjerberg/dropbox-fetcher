@@ -15,8 +15,8 @@ cd ~/repos
 git clone git@github.com:jspanjerberg/dropbox-fetcher.git
 ```
 
-1. Create a dropbox API token via https://www.dropbox.com/developers/apps
-1. Store token and run script:
+2. Create a dropbox API token via https://www.dropbox.com/developers/apps
+3. Store token and run script:
 
 ```
 TOKEN=db_copypasteyourtokenhere
