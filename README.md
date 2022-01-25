@@ -34,7 +34,7 @@ git clone git@github.com:jspanjerberg/dropbox-fetcher.git
 TOKEN=yourtokenhere
 mkdir -p ~/tokens
 mkdir -p ~/storage/dropbox
-echo $TOKEN > ~/tokens/.dropbox.secret
+echo $TOKEN > ~/tokens/.dropbox.token.secret
 ```
 
 4. If necessary, install dropbox for python
@@ -60,5 +60,5 @@ cd ~/repos/dropbox-fetcher/
 ./dropbox_fetcher.py -s mydropbox/subfolder -d ~/temp/dbx-download
 
 # specify path to token secret
-./dropbox_fetcher.py -t ~/mytokens/.dropbox.secret
+./dropbox_fetcher.py -t ~/mytokens/.dropbox.token.secret
 ```
